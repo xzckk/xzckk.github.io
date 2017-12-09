@@ -41,7 +41,7 @@ $(function(){
 				},
 				//回调失败
 				error:function(){
-					alert("登录失败,请稍候重试");
+					alert("Something wrong...");
 				}
 			});
 		}		
