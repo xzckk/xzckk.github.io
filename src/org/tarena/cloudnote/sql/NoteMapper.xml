@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+		  "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="org.tarena.cloudnote.dao.NoteDAO">
+
+	<select id="findByNoteBookId" parameterType="string"
+			resultType="org.tarena.cloudnote.entity.Note">
+		SELECT * FROM cn_note
+		WHERE cn_note_id in (select tpl_interact.keyid from tpl_interact where tpl_interact.vehid =#{noteBookId})
+	
+	</select>
+	
+	<select id="findByNoteId" parameterType="string"
+			resultType="org.tarena.cloudnote.entity.Note">
+		SELECT * FROM cn_note
+		WHERE cn_note_id=#{noteId}
+	</select>
+	
+	<insert id="save" parameterType="org.tarena.cloudnote.entity.Note">
+		INSERT INTO cn_note
+		(cn_note_id,cn_notebook_id,cn_user_id,
+		cn_note_status_id,cn_note_type_id,cn_note_title,
+		cn_note_body,cn_note_create_time,cn_note_last_modify_time)
+		VALUES
+		(#{cn_note_id},#{cn_notebook_id},#{cn_user_id},
+		#{cn_note_status_id},#{cn_note_type_id},#{cn_note_title},
+		#{cn_note_body},#{cn_note_create_time},#{cn_note_last_modify_time})
+	</insert>
+	
+	<update id="addBody" parameterType="org.tarena.cloudnote.entity.Note">
+		UPDATE cn_note
+		SET cn_note_title=#{cn_note_title},cn_note_body=#{cn_note_body},
+			cn_note_last_modify_time=#{cn_note_last_modify_time},fre=#{fre},battery=#{battery},chipid=#{chipid},km=#{km},ca=#{ca}
+		WHERE cn_note_id=#{cn_note_id}
+	</update>
+	
+	<update id="recycle" parameterType="org.tarena.cloudnote.entity.Note">
+		UPDATE cn_note
+		SET cn_note_status_id=#{cn_note_status_id}
+		WHERE cn_note_id=#{cn_note_id}
+	</update>
+	
+	<select id="findNotes" parameterType="org.tarena.cloudnote.entity.NoteBean"
+			resultType="org.tarena.cloudnote.entity.Note">
+		SELECT * FROM cn_note
+		<where>
+		  <if test="cn_note_title!=null">
+				cn_note_title LIKE #{cn_note_title}
+		  </if>
+		  <if test="cn_note_status_id!=null">
+			AND cn_note_status_id=#{cn_note_status_id}
+		  </if>
+		  <if test="beginTime!=null">
+			AND cn_note_create_time>#{beginTime}
+		  </if>
+		  <if test="endTime!=null">
+			AND cn_note_create_time&lt;#{endTime}
+		  </if>
+		</where>
+	</select>
+	
+	<update id="dynamicUpdate" parameterType="org.tarena.cloudnote.entity.Note">
+		UPDATE cn_note
+		<set>
+			<if test="cn_note_title!=null">
+				cn_note_title=#{cn_note_title},
+			</if>
+			<if test="cn_note_status_id!=null">
+				cn_note_status_id=#{cn_note_status_id},
+			</if>
+			<if test="cn_notebook_id!=null">
+				cn_notebook_id=#{cn_notebook_id},
+			</if>
+			<if test="cn_note_body!=null">
+				cn_note_body=#{cn_note_body},
+			</if>
+			<if test="cn_note_last_modify_time!=null">
+				cn_note_last_modify_time=#{cn_note_last_modify_time}
+			</if>
+		</set>
+		WHERE cn_note_id=#{cn_note_id}
+	</update>
+	
+	<delete id="batchDelete">
+		DELETE FROM cn_note
+		WHERE cn_note_id in
+			<foreach collection="array" item="noteId"
+					 open="(" close=")" separator=",">
+				#{noteId}
+			</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>笔记管理</title>
+    <meta charset="UTF-8">
+  </head>
+  <script type="text/javascript" src="scripts/jquery.min.js"></script>
+  <script type="text/javascript">
+  	$(function(){
+  		$("#search_btn").click(function(){
+  			//获取请求参数
+  			var title=$("#title").val().trim();
+  			var status=$("#status").val().trim();
+  			var beginTime=$("#beginTime").val().trim();
+  			var endTime=$("#endTime").val().trim();
+  			//检查格式(时间格式)
+  			//发送Ajax请求
+  			$.ajax({
+  				url:"note/findallnotes.do",
+  				type:"post",
+  				data:{"title":title,"status":status,"beginTime":beginTime,"endTime":endTime},
+  				dataType:"json",
+  				success:function(result){
+  					var notes=result.data;
+  					//清空列表
+  					$("#note_tb tr:gt(0)").remove();
+  					//循环生成列表
+  					for(var i=0;i<notes.length;i++){
+  						var noteTitle=notes[i].cn_note_title;
+  						var noteStatus=notes[i].cn_note_status_id;
+  						var createTime=notes[i].createTime;
+  						if(noteStatus=="1"){
+  							noteStatus="normal";
+  						}else if(noteStatus=="2"){
+  							noteStatus="recycle";
+  						}
+  						//拼接tr
+  						var notes_tr ="<tr>";
+  							notes_tr+=" <td>"+noteTitle+"</td>";
+  							notes_tr+=" <td>"+noteStatus+"</td>";
+  							notes_tr+=" <td>"+createTime+"</td>";
+  							notes_tr+="</tr>";
+  						$("#note_tb").append(notes_tr);
+  					}
+  				},
+  				error:function(){
+  					alert("查询失败，请稍候重试");
+  				}
+  			});
+  		});
+  	});
+  </script>
+  
+  <body>
+  	<form action="">
+  	标题:<input type="text" id="title">
+  	状态:<select id="status">
+  		    <option value="0">all</option>
+  		    <option value="1">normal</option>
+  		    <option value="2">recycle</option>
+  		</select>
+  		<br/>
+  	起始日期:<input type="text" id="beginTime">
+  	结束日期:<input type="text" id="endTime">
+  	<input type="button" value="检索" id="search_btn">
+  	</form>
+    <hr/>
+    <table id="note_tb">
+   	  <tr>
+	   	<td>标题</td>
+	   	<td>状态</td>
+	   	<td>创建日期</td>
+   	  </tr>
+    </table>
+  </body>
+</html>
